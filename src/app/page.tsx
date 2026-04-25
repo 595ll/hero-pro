@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { QueryPanel } from "@/components/query-panel";
 
 const INTRO_CONTENT_REVEAL_SECONDS = 3;
+const publicBasePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 
 type VideoStage = "intro" | "fading" | "background" | "fallback";
 
@@ -119,7 +120,7 @@ export default function Home() {
         <video
           ref={videoRef}
           className="home-video"
-          src="/background-videos/bg-p.mp4"
+          src={`${publicBasePath}/background-videos/bg-p.mp4`}
           autoPlay
           muted
           playsInline

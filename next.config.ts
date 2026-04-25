@@ -1,5 +1,20 @@
 import type { NextConfig } from "next";
 
-const nextConfig: NextConfig = {};
+const repoName = process.env.GITHUB_REPOSITORY?.split("/")[1] ?? "hero-pro";
+const isGithubPagesBuild = process.env.GITHUB_ACTIONS === "true";
+const basePath = isGithubPagesBuild ? `/${repoName}` : "";
+
+const nextConfig: NextConfig = {
+  output: "export",
+  trailingSlash: true,
+  images: {
+    unoptimized: true,
+  },
+  basePath,
+  assetPrefix: basePath || undefined,
+  env: {
+    NEXT_PUBLIC_BASE_PATH: basePath,
+  },
+};
 
 export default nextConfig;
