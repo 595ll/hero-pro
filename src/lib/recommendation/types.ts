@@ -112,6 +112,7 @@ export interface ChampionProfile {
   id: string;
   key: string;
   name: string;
+  iconPath?: string;
   title?: string;
   rangeType: ChampionRangeType;
   damagePatterns: DamagePattern[];
@@ -142,6 +143,7 @@ export interface AugmentProfile {
   id: string;
   name: string;
   localizedName?: string;
+  iconPath?: string;
   rarity: AugmentRarity;
   summary: string;
   officialDescription: string;

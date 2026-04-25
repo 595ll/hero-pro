@@ -36,18 +36,129 @@ li + li {
   margin-top: 10px;
 }
 
+.home-stage {
+  position: relative;
+  min-height: 100vh;
+  isolation: isolate;
+}
+
+.video-stage {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at top, rgba(52, 211, 153, 0.18), transparent 32%),
+    linear-gradient(180deg, #09111f 0%, #081018 100%);
+}
+
+.home-video,
+.video-stage-overlay {
+  position: absolute;
+  inset: 0;
+}
+
+.home-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.02);
+}
+
+.video-stage-overlay {
+  background:
+    linear-gradient(180deg, rgba(2, 6, 23, 0.06) 0%, rgba(2, 6, 23, 0.48) 55%, rgba(2, 6, 23, 0.78) 100%),
+    radial-gradient(circle at top, rgba(15, 118, 110, 0.16), transparent 34%);
+  transition: opacity 520ms ease, background 520ms ease;
+}
+
+.intro-brand {
+  position: absolute;
+  left: 24px;
+  bottom: 24px;
+  z-index: 1;
+  max-width: min(360px, calc(100vw - 40px));
+  padding: 14px 16px;
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 20px;
+  background: rgba(2, 6, 23, 0.42);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(12px);
+  pointer-events: none;
+  transition: opacity 420ms ease, transform 420ms ease;
+}
+
+.intro-brand-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.intro-brand-hidden {
+  opacity: 0;
+  transform: translateY(12px);
+}
+
+.intro-brand-kicker,
+.intro-brand-title {
+  margin: 0;
+}
+
+.intro-brand-kicker {
+  color: #99f6e4;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.intro-brand-title {
+  margin-top: 8px;
+  color: #f8fafc;
+  font-size: clamp(20px, 3vw, 28px);
+  line-height: 1.3;
+  text-shadow: 0 10px 30px rgba(2, 6, 23, 0.35);
+}
+
+.home-stage-intro .video-stage-overlay {
+  opacity: 0.2;
+}
+
+.home-stage-fading .video-stage-overlay,
+.home-stage-background .video-stage-overlay,
+.home-stage-fallback .video-stage-overlay {
+  opacity: 1;
+}
+
+.home-stage-fallback .home-video {
+  opacity: 0;
+}
+
 .page-shell {
+  position: relative;
+  z-index: 1;
   width: 100%;
   max-width: 1120px;
   margin: 0 auto;
-  padding: 48px 20px 72px;
+  padding: clamp(96px, 16vh, 180px) 20px 72px;
+  transition: opacity 720ms ease, transform 720ms ease;
+}
+
+.page-shell-hidden {
+  opacity: 0;
+  transform: translateY(32px);
+  pointer-events: none;
+}
+
+.page-shell-visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .hero-card,
 .info-card,
 .notice-card {
   border: 1px solid rgba(148, 163, 184, 0.18);
-  background: rgba(15, 23, 42, 0.78);
+  background: rgba(15, 23, 42, 0.74);
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.22);
   backdrop-filter: blur(10px);
 }
@@ -144,7 +255,7 @@ li + li {
 .panel-card,
 .result-item {
   border: 1px solid rgba(148, 163, 184, 0.18);
-  background: rgba(15, 23, 42, 0.78);
+  background: rgba(15, 23, 42, 0.74);
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
   backdrop-filter: blur(10px);
 }
@@ -214,6 +325,39 @@ li + li {
   margin-bottom: 10px;
   color: #cbd5e1;
   font-size: 14px;
+}
+
+.field-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.field-head .field-label {
+  margin-bottom: 0;
+}
+
+.secondary-action-button {
+  min-height: 36px;
+  padding: 0 14px;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.78);
+  color: #dbe4f3;
+  font-size: 13px;
+  cursor: pointer;
+  transition:
+    border-color 180ms ease,
+    background 180ms ease,
+    color 180ms ease;
+}
+
+.secondary-action-button:hover {
+  border-color: rgba(45, 212, 191, 0.3);
+  background: rgba(13, 38, 35, 0.72);
+  color: #99f6e4;
 }
 
 .select-input {
@@ -414,8 +558,25 @@ li + li {
 }
 
 @media (max-width: 760px) {
+  .intro-brand {
+    left: 16px;
+    right: 16px;
+    bottom: 16px;
+    max-width: none;
+    padding: 12px 14px;
+    border-radius: 18px;
+  }
+
+  .intro-brand-kicker {
+    font-size: 12px;
+  }
+
+  .intro-brand-title {
+    font-size: 18px;
+  }
+
   .page-shell {
-    padding-top: 24px;
+    padding-top: 72px;
   }
 
   .hero-card,
@@ -440,6 +601,11 @@ li + li {
 
   .query-grid {
     grid-template-columns: 1fr;
+  }
+
+  .field-head {
+    flex-direction: column;
+    align-items: flex-start;
   }
 
   .augment-scroll-area {

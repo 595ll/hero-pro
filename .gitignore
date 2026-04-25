@@ -5,6 +5,7 @@ coverage/
 dist/
 source-cache/
 tmp/
+.vercel/
 
 # logs
 npm-debug.log*

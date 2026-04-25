@@ -28,9 +28,7 @@ function getDeltaLabel(delta: number) {
 }
 
 export function QueryPanel() {
-  const [selectedChampionId, setSelectedChampionId] = useState(
-    championProfiles[0]?.id ?? "",
-  );
+  const [selectedChampionId, setSelectedChampionId] = useState("");
   const [selectedAugmentIds, setSelectedAugmentIds] = useState<string[]>([]);
 
   const selectedChampion = useMemo(
@@ -112,15 +110,25 @@ export function QueryPanel() {
 
       <div className="query-grid">
         <div className="panel-card">
-          <label className="field-label" htmlFor="champion-select">
-            1. 选择英雄
-          </label>
+          <div className="field-head">
+            <label className="field-label" htmlFor="champion-select">
+              1. 选择英雄
+            </label>
+            <button
+              type="button"
+              className="secondary-action-button"
+              onClick={() => setSelectedChampionId("")}
+            >
+              重置英雄
+            </button>
+          </div>
           <select
             id="champion-select"
             className="select-input"
             value={selectedChampionId}
             onChange={(event) => setSelectedChampionId(event.target.value)}
           >
+            <option value="">请选择英雄</option>
             {championProfiles.map((champion) => (
               <option key={champion.id} value={champion.id}>
                 {champion.name}
@@ -154,7 +162,16 @@ export function QueryPanel() {
         </div>
 
         <div className="panel-card">
-          <label className="field-label">2. 选择候选海克斯</label>
+          <div className="field-head">
+            <label className="field-label">2. 选择候选海克斯</label>
+            <button
+              type="button"
+              className="secondary-action-button"
+              onClick={() => setSelectedAugmentIds([])}
+            >
+              重置海克斯符文
+            </button>
+          </div>
           <div className="augment-scroll-area">
             <div className="augment-list">
               {augmentProfiles.map((augment) => {
