@@ -6,7 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "sync:sources": "node scripts/sync-source-data.mjs",
+    "intake:batch": "node scripts/create-intake-batch.mjs",
+    "audit:data": "node scripts/audit-data.mjs",
+    "audit:recommendations": "node scripts/audit-recommendations.mjs"
   },
   "dependencies": {
     "next": "latest",

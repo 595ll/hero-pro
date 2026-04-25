@@ -3,7 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Hero Pro",
-  description: "A Next.js app bootstrapped for hero-pro.",
+  description: "海克斯大乱斗候选强化推荐工具。",
 };
 
 export default function RootLayout({

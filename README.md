@@ -21,3 +21,13 @@ npm run dev
 默认访问地址：
 
 [http://localhost:3000](http://localhost:3000)
+
+## 数据同步
+
+项目提供了一个本地数据同步脚本，用于抓取英雄官方静态数据和 Arena 客户端导出数据：
+
+```bash
+npm run sync:sources
+```
+
+更详细的说明见 [source-sync.md](file:///c:/Users/29403/Documents/trae_projects/hero-pro/docs/source-sync.md)。
