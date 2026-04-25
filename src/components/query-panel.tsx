@@ -1,10 +1,20 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Image from "next/image";
 import { augmentProfiles } from "@/data/augments";
 import { championProfiles } from "@/data/champions";
+import { getAugmentIconPath, getChampionIconPath } from "@/data/icon-overrides";
 import { recommendForAugmentCandidates } from "@/lib/recommendation/catalog";
+import type { AugmentRarity } from "@/lib/recommendation/types";
 import { canScoreInProduction } from "@/lib/recommendation/validation";
+
+const publicBasePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+const rarityFilterOptions: Array<{ value: AugmentRarity; label: string }> = [
+  { value: "prismatic", label: "棱彩" },
+  { value: "gold", label: "黄金" },
+  { value: "silver", label: "白银" },
+];
 
 function getVerdictLabel(verdict: string) {
   switch (verdict) {
@@ -27,6 +37,14 @@ function getDeltaLabel(delta: number) {
   return `比当前最优低 ${delta} 分`;
 }
 
+function getAssetSrc(iconPath?: string) {
+  return iconPath ? `${publicBasePath}${iconPath}` : undefined;
+}
+
+function normalizeSearchTerm(value: string) {
+  return value.trim().toLowerCase();
+}
+
 type QueryPanelProps = {
   headingLevel?: 2 | 3;
 };
@@ -35,6 +53,11 @@ export function QueryPanel({ headingLevel = 2 }: QueryPanelProps) {
   const SectionHeading = headingLevel === 3 ? "h3" : "h2";
   const [selectedChampionId, setSelectedChampionId] = useState("");
   const [selectedAugmentIds, setSelectedAugmentIds] = useState<string[]>([]);
+  const [championSearchTerm, setChampionSearchTerm] = useState("");
+  const [augmentSearchTerm, setAugmentSearchTerm] = useState("");
+  const [activeRarities, setActiveRarities] = useState<AugmentRarity[]>(
+    rarityFilterOptions.map((item) => item.value),
+  );
 
   const selectedChampion = useMemo(
     () => championProfiles.find((item) => item.id === selectedChampionId),
@@ -55,6 +78,37 @@ export function QueryPanel({ headingLevel = 2 }: QueryPanelProps) {
 
     return recommendForAugmentCandidates(selectedChampionId, selectedAugmentIds);
   }, [selectedAugmentIds, selectedChampionId]);
+
+  const filteredChampions = useMemo(() => {
+    const query = normalizeSearchTerm(championSearchTerm);
+
+    if (!query) {
+      return championProfiles;
+    }
+
+    return championProfiles.filter((champion) =>
+      [champion.name, champion.title, champion.id]
+        .filter(Boolean)
+        .some((value) => value?.toLowerCase().includes(query)),
+    );
+  }, [championSearchTerm]);
+
+  const filteredAugments = useMemo(() => {
+    const query = normalizeSearchTerm(augmentSearchTerm);
+    const activeRaritySet = new Set(activeRarities);
+
+    return augmentProfiles.filter((augment) => {
+      const matchesQuery =
+        !query ||
+        [augment.localizedName, augment.name, augment.summary]
+          .filter(Boolean)
+          .some((value) => value?.toLowerCase().includes(query));
+
+      const matchesRarity = activeRaritySet.has(augment.rarity);
+
+      return matchesQuery && matchesRarity;
+    });
+  }, [activeRarities, augmentSearchTerm]);
 
   const selectedResults = useMemo(() => {
     return selectedAugmentIds
@@ -92,12 +146,30 @@ export function QueryPanel({ headingLevel = 2 }: QueryPanelProps) {
   }, [recommendations, selectedAugmentIds, selectedChampion]);
 
   const topRecommendation = selectedResults[0];
+  const displayedChampionIconSrc = displayedChampion
+    ? getAssetSrc(getChampionIconPath(displayedChampion.id, displayedChampion.iconPath))
+    : undefined;
+  const topRecommendationIconSrc = topRecommendation
+    ? getAssetSrc(
+        getAugmentIconPath(topRecommendation.augment.id, topRecommendation.augment.iconPath),
+      )
+    : undefined;
 
   function toggleAugment(augmentId: string) {
     setSelectedAugmentIds((current) =>
       current.includes(augmentId)
         ? current.filter((item) => item !== augmentId)
         : [...current, augmentId],
+    );
+  }
+
+  function toggleRarity(rarity: AugmentRarity) {
+    setActiveRarities((current) =>
+      current.includes(rarity)
+        ? current.filter((item) => item !== rarity)
+        : rarityFilterOptions
+            .map((item) => item.value)
+            .filter((item) => current.includes(item) || item === rarity),
     );
   }
 
@@ -116,9 +188,7 @@ export function QueryPanel({ headingLevel = 2 }: QueryPanelProps) {
       <div className="query-grid">
         <div className="panel-card">
           <div className="field-head">
-            <label className="field-label" htmlFor="champion-select">
-              1. 选择英雄
-            </label>
+            <p className="field-label">1. 选择英雄</p>
             <button
               type="button"
               className="secondary-action-button"
@@ -127,24 +197,77 @@ export function QueryPanel({ headingLevel = 2 }: QueryPanelProps) {
               重置英雄
             </button>
           </div>
-          <select
-            id="champion-select"
-            className="select-input"
-            value={selectedChampionId}
-            onChange={(event) => setSelectedChampionId(event.target.value)}
-          >
-            <option value="">请选择英雄</option>
-            {championProfiles.map((champion) => (
-              <option key={champion.id} value={champion.id}>
-                {champion.name}
-              </option>
-            ))}
-          </select>
+          <div className="panel-controls">
+            <input
+              type="search"
+              className="search-input"
+              value={championSearchTerm}
+              onChange={(event) => setChampionSearchTerm(event.target.value)}
+              placeholder="搜索英雄名、称号或英文 ID"
+              aria-label="搜索英雄"
+            />
+          </div>
+          <div className="champion-scroll-area" role="list" aria-label="英雄列表">
+            <div className="champion-list">
+              {filteredChampions.map((champion) => {
+                const checked = champion.id === selectedChampionId;
+                const championIconSrc = getAssetSrc(
+                  getChampionIconPath(champion.id, champion.iconPath),
+                );
+
+                return (
+                  <button
+                    key={champion.id}
+                    type="button"
+                    className={`champion-item ${checked ? "champion-item-active" : ""}`}
+                    aria-pressed={checked}
+                    onClick={() => setSelectedChampionId(champion.id)}
+                  >
+                    {championIconSrc ? (
+                      <Image
+                        src={championIconSrc}
+                        alt={`${champion.name} 图标`}
+                        width={44}
+                        height={44}
+                        className="entity-icon entity-icon-champion-list"
+                        unoptimized
+                      />
+                    ) : (
+                      <span className="entity-icon entity-icon-fallback" aria-hidden="true">
+                        {champion.name.slice(0, 1)}
+                      </span>
+                    )}
+                    <span className="champion-item-copy">
+                      <strong>{champion.name}</strong>
+                      {champion.title ? <span className="sub-label">{champion.title}</span> : null}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+            {filteredChampions.length === 0 ? (
+              <p className="list-empty-state">当前搜索条件下没有匹配的英雄。</p>
+            ) : null}
+          </div>
 
           {displayedChampion ? (
             <div className="detail-block">
-              <h3>{displayedChampion.name}</h3>
-              <p>{displayedChampion.title}</p>
+              <div className="entity-heading">
+                {displayedChampionIconSrc ? (
+                  <Image
+                    src={displayedChampionIconSrc}
+                    alt={`${displayedChampion.name} 图标`}
+                    width={72}
+                    height={72}
+                    className="entity-icon entity-icon-champion-detail"
+                    unoptimized
+                  />
+                ) : null}
+                <div>
+                  <h3>{displayedChampion.name}</h3>
+                  <p>{displayedChampion.title}</p>
+                </div>
+              </div>
               <div className="tag-row">
                 {displayedChampion.combatTempos.map((item) => (
                   <span key={item} className="mini-tag">
@@ -168,7 +291,7 @@ export function QueryPanel({ headingLevel = 2 }: QueryPanelProps) {
 
         <div className="panel-card">
           <div className="field-head">
-            <label className="field-label">2. 选择候选海克斯</label>
+            <p className="field-label">2. 选择候选海克斯</p>
             <button
               type="button"
               className="secondary-action-button"
@@ -177,12 +300,41 @@ export function QueryPanel({ headingLevel = 2 }: QueryPanelProps) {
               重置海克斯符文
             </button>
           </div>
+          <div className="panel-controls">
+            <input
+              type="search"
+              className="search-input"
+              value={augmentSearchTerm}
+              onChange={(event) => setAugmentSearchTerm(event.target.value)}
+              placeholder="搜索海克斯名、英文名或效果摘要"
+              aria-label="搜索海克斯"
+            />
+            <div className="filter-toolbar" aria-label="海克斯等级筛选">
+              {rarityFilterOptions.map((option) => {
+                const active = activeRarities.includes(option.value);
+
+                return (
+                  <button
+                    key={option.value}
+                    type="button"
+                    className={`filter-chip ${active ? "filter-chip-active" : ""}`}
+                    aria-pressed={active}
+                    onClick={() => toggleRarity(option.value)}
+                  >
+                    {option.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
           <div className="augment-scroll-area">
             <div className="augment-list">
-              {augmentProfiles.map((augment) => {
+              {filteredAugments.map((augment) => {
                 const checked = selectedAugmentIds.includes(augment.id);
                 const displayLocalizedName = augment.localizedName ?? augment.name;
-                const displaySummary = augment.summary;
+                const augmentIconSrc = getAssetSrc(
+                  getAugmentIconPath(augment.id, augment.iconPath),
+                );
 
                 return (
                   <button
@@ -191,18 +343,29 @@ export function QueryPanel({ headingLevel = 2 }: QueryPanelProps) {
                     className={`augment-item ${checked ? "augment-item-active" : ""}`}
                     onClick={() => toggleAugment(augment.id)}
                   >
-                    <div>
-                      <strong>{displayLocalizedName}</strong>
-                      {augment.localizedName ? (
-                        <p className="sub-label">{augment.name}</p>
-                      ) : null}
-                      <p>{displaySummary}</p>
+                    <div className="augment-item-top">
+                      <div className="augment-item-name">
+                        {augmentIconSrc ? (
+                          <Image
+                            src={augmentIconSrc}
+                            alt={`${displayLocalizedName} 图标`}
+                            width={40}
+                            height={40}
+                            className="entity-icon entity-icon-augment"
+                            unoptimized
+                          />
+                        ) : null}
+                        <strong>{displayLocalizedName}</strong>
+                      </div>
+                      <span className="mini-tag">{augment.rarity}</span>
                     </div>
-                    <span className="mini-tag">{augment.rarity}</span>
                   </button>
                 );
               })}
             </div>
+            {filteredAugments.length === 0 ? (
+              <p className="list-empty-state">当前搜索和等级筛选下没有匹配的海克斯。</p>
+            ) : null}
           </div>
         </div>
       </div>
@@ -225,7 +388,24 @@ export function QueryPanel({ headingLevel = 2 }: QueryPanelProps) {
             {topRecommendation?.ready && topRecommendation.recommendation ? (
               <article className="top-pick-card">
                 <p className="eyebrow">当前优先级最高</p>
-                <h3>{topRecommendation.augment.localizedName ?? topRecommendation.augment.name}</h3>
+                <div className="entity-heading entity-heading-top-pick">
+                  {topRecommendationIconSrc ? (
+                    <Image
+                      src={topRecommendationIconSrc}
+                      alt={`${topRecommendation.augment.localizedName ?? topRecommendation.augment.name} 图标`}
+                      width={60}
+                      height={60}
+                      className="entity-icon entity-icon-top-pick"
+                      unoptimized
+                    />
+                  ) : null}
+                  <div>
+                    <h3>{topRecommendation.augment.localizedName ?? topRecommendation.augment.name}</h3>
+                    {topRecommendation.augment.localizedName ? (
+                      <p className="sub-label">{topRecommendation.augment.name}</p>
+                    ) : null}
+                  </div>
+                </div>
                 <p className="top-pick-summary">
                   {displayedChampion?.name ?? selectedChampion?.name} 当前更适合先看这个海克斯，结论为
                   <strong> {getVerdictLabel(topRecommendation.recommendation.verdict)}</strong>，
@@ -247,16 +427,31 @@ export function QueryPanel({ headingLevel = 2 }: QueryPanelProps) {
                   .slice(0, 2) ?? [];
               const primaryRisk =
                 recommendation?.warnings[0] ?? augment.trapSignals[0];
+              const augmentIconSrc = getAssetSrc(
+                getAugmentIconPath(augment.id, augment.iconPath),
+              );
 
               return (
                 <article key={augment.id} className="result-item">
                   <div className="result-top">
-                    <div>
-                      <h3>{augment.localizedName ?? augment.name}</h3>
-                      {augment.localizedName ? (
-                        <p className="sub-label">{augment.name}</p>
+                    <div className="entity-heading entity-heading-top">
+                      {augmentIconSrc ? (
+                        <Image
+                          src={augmentIconSrc}
+                          alt={`${augment.localizedName ?? augment.name} 图标`}
+                          width={52}
+                          height={52}
+                          className="entity-icon entity-icon-result"
+                          unoptimized
+                        />
                       ) : null}
-                      <p>{augment.summary}</p>
+                      <div>
+                        <h3>{augment.localizedName ?? augment.name}</h3>
+                        {augment.localizedName ? (
+                          <p className="sub-label">{augment.name}</p>
+                        ) : null}
+                        <p>{augment.summary}</p>
+                      </div>
                     </div>
                     <span
                       className={`status-badge ${
