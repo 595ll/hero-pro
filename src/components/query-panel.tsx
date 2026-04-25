@@ -27,7 +27,12 @@ function getDeltaLabel(delta: number) {
   return `比当前最优低 ${delta} 分`;
 }
 
-export function QueryPanel() {
+type QueryPanelProps = {
+  headingLevel?: 2 | 3;
+};
+
+export function QueryPanel({ headingLevel = 2 }: QueryPanelProps) {
+  const SectionHeading = headingLevel === 3 ? "h3" : "h2";
   const [selectedChampionId, setSelectedChampionId] = useState("");
   const [selectedAugmentIds, setSelectedAugmentIds] = useState<string[]>([]);
 
@@ -101,7 +106,7 @@ export function QueryPanel() {
       <div className="section-head">
         <div>
           <p className="eyebrow">首批真实数据查询</p>
-          <h2>先跑通最短查询路径</h2>
+          <SectionHeading>先跑通最短查询路径</SectionHeading>
         </div>
         <p className="section-note">
           当前已接入 {championProfiles.length} 个英雄和 {augmentProfiles.length} 个海克斯条目，已录入的海克斯都能进入正式评分。
@@ -206,7 +211,7 @@ export function QueryPanel() {
         <div className="section-head">
           <div>
             <p className="eyebrow">当前结果</p>
-            <h2>推荐与资料状态</h2>
+            <SectionHeading>推荐与资料状态</SectionHeading>
           </div>
           <p className="section-note">
             这一步优先保证“看得懂”和“知道为什么这样推荐”，再继续扩更多英雄和海克斯。
