@@ -179,6 +179,16 @@ export const thirdBatchAugmentProfiles: AugmentProfile[] = [
       "如果英雄控制频率不足或很难抓到触发窗口，这类收益就会明显下滑。",
       "如果对局节奏和英雄玩法与收益方向不匹配，整体性价比通常不如更泛用的选项。"
     ],
+    "ruleHints": {
+      "requiredAbilityMechanicsAny": [
+        "stun",
+        "root",
+        "knockup",
+        "taunt",
+        "pull",
+        "ground"
+      ]
+    },
     "verification": {
       "status": "verified",
       "reviewedAt": "2026-04-25",

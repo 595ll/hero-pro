@@ -21,10 +21,50 @@ const augmentIconOverrides: Record<string, string> = {
   "214": "/icons/augments/214.webp",
 };
 
+const championIconIds = new Set([
+  "Ahri",
+  "Alistar",
+  "Amumu",
+  "Ashe",
+  "Brand",
+  "Darius",
+  "Ezreal",
+  "Janna",
+  "Jinx",
+  "Karma",
+  "Katarina",
+  "Leona",
+  "Lulu",
+  "Lux",
+  "Malphite",
+  "Maokai",
+  "MasterYi",
+  "Milio",
+  "Nami",
+  "Nautilus",
+  "Rell",
+  "Renata",
+  "Sejuani",
+  "Seraphine",
+  "Sett",
+  "Sona",
+  "Soraka",
+  "Swain",
+  "Syndra",
+  "Vayne",
+  "Velkoz",
+  "Xerath",
+  "Ziggs",
+]);
+
 export function getChampionIconPath(
   championId: string,
   fallbackIconPath?: string,
 ) {
+  if (!championIconIds.has(championId)) {
+    return undefined;
+  }
+
   return fallbackIconPath ?? `/icons/champions/${championId}.png`;
 }
 

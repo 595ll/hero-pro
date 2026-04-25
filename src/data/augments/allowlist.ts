@@ -32,6 +32,9 @@ export const arenaProductionAllowlist: ArenaProductionAllowlistEntry[] = [
   { id: "58", name: "Mystic Punch", sourceOfTruth: "production-batch", allowedInProduction: true },
   { id: "54", name: "Master of Duality", sourceOfTruth: "production-batch", allowedInProduction: true },
   { id: "214", name: "Spin To Win", sourceOfTruth: "production-batch", allowedInProduction: true },
+  { id: "18", name: "Courage of the Colossus", sourceOfTruth: "production-batch", allowedInProduction: true },
+  { id: "19", name: "Dashing", sourceOfTruth: "production-batch", allowedInProduction: true },
+  { id: "32", name: "Executioner", sourceOfTruth: "production-batch", allowedInProduction: true },
 ];
 
 export const blockedArenaAugments: BlockedArenaAugmentEntry[] = [

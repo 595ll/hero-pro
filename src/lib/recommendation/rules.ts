@@ -767,10 +767,11 @@ export function scoreChampionAugment(
 
   if (
     augment.rewardTypes.includes("utility") &&
-    (champion.utilityTags.length > 0 ||
-      champion.scalingTags.includes("heal_shield") ||
-      champion.survivalStyles.includes("shield") ||
-      champion.survivalStyles.includes("heal"))
+    (champion.scalingTags.includes("heal_shield") ||
+      champion.utilityTags.includes("peel") ||
+      champion.utilityTags.includes("engage") ||
+      champion.utilityTags.includes("disengage") ||
+      hasAbilityMechanic(champion, ["ally_protect", "buff"]))
   ) {
     rewardScore += 8;
     rewardReasons.push({
@@ -1009,7 +1010,8 @@ export function scoreChampionAugment(
     !champion.scalingTags.includes("heal_shield") &&
     !champion.utilityTags.includes("peel") &&
     !champion.utilityTags.includes("engage") &&
-    !hasAbilityMechanic(champion, ["ally_protect", "buff", "shield"])
+    !champion.utilityTags.includes("disengage") &&
+    !hasAbilityMechanic(champion, ["ally_protect", "buff"])
   ) {
     riskPenalty += 6;
     riskReasons.push({
@@ -1065,7 +1067,8 @@ export function scoreChampionAugment(
     !champion.scalingTags.includes("heal_shield") &&
     !champion.utilityTags.includes("peel") &&
     !champion.utilityTags.includes("engage") &&
-    !hasAbilityMechanic(champion, ["ally_protect", "buff", "shield"])
+    !champion.utilityTags.includes("disengage") &&
+    !hasAbilityMechanic(champion, ["ally_protect", "buff"])
   ) {
     riskPenalty += 6;
     riskReasons.push({

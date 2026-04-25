@@ -36,6 +36,13 @@ export const fifthBatchAugmentProfiles: AugmentProfile[] = [
       "如果英雄技能命中率不足或触发窗口太短，这类收益很难稳定兑现。",
       "如果队友无法稳定承接增益或阵容缺少配合点，这类团队向收益会变弱。"
     ],
+    "ruleHints": {
+      "requiredAbilityMechanicsAny": [
+        "ally_protect",
+        "buff",
+        "heal"
+      ]
+    },
     "verification": {
       "status": "verified",
       "reviewedAt": "2026-04-25",

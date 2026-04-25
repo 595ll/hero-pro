@@ -1,4 +1,7 @@
 import type { ChampionProfile } from "@/lib/recommendation/types";
+import { fourteenthBatchChampionProfiles } from "./fourteenth-batch";
+import { thirteenthBatchChampionProfiles } from "./thirteenth-batch";
+import { twelfthBatchChampionProfiles } from "./twelfth-batch";
 import { eleventhBatchChampionProfiles } from "./eleventh-batch";
 import { tenthBatchChampionProfiles } from "./tenth-batch";
 import { ninthBatchChampionProfiles } from "./ninth-batch";
@@ -12,6 +15,9 @@ import { secondBatchChampionProfiles } from "./second-batch";
 import { thirdBatchChampionProfiles } from "./third-batch";
 
 export const championProfiles: ChampionProfile[] = [
+  ...fourteenthBatchChampionProfiles,
+  ...thirteenthBatchChampionProfiles,
+  ...twelfthBatchChampionProfiles,
   ...eleventhBatchChampionProfiles,
   ...tenthBatchChampionProfiles,
   ...ninthBatchChampionProfiles,
